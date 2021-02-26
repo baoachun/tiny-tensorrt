@@ -1,4 +1,4 @@
-![image](https://github.com/baoachun/tiny-tensorrt/tree/master/docs/tiny-tensorrt.png)
+![image](https://user-images.githubusercontent.com/38289304/71065174-aafc3100-21ab-11ea-9bcb-665d38181e74.png)
 
 
 # Note
