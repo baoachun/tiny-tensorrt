@@ -26,14 +26,14 @@
 // it will reduce the time you spend on debug
 // 为了方便debug, 你也可以在插件的实现里面看到我大量使用了assert, 这个可以大大减少花在
 // debug上的时间
-#define ASSERT(assertion)                                                                                              \
-{                                                                                                                  \
-    if (!(assertion))                                                                                              \
-    {                                                                                                              \
-        std::cerr << "#assertion fail " << __FILE__ << " line " << __LINE__ << std::endl;                                     \
-        abort();                                                                                                   \
-    }                                                                                                              \
-}
+#define ASSERT(assertion)                                                                     \
+    {                                                                                         \
+        if (!(assertion))                                                                     \
+        {                                                                                     \
+            std::cerr << "#assertion fail " << __FILE__ << " line " << __LINE__ << std::endl; \
+            abort();                                                                          \
+        }                                                                                     \
+    }
 
 // write value to buffer
 template <typename T>
@@ -55,20 +55,20 @@ void read(const char *&buffer, T &val)
 size_t type2size(nvinfer1::DataType type);
 
 // copy data to device memory
-void* copyToDevice(const void* data, size_t count);
+void *copyToDevice(const void *data, size_t count);
 
 // copy data to buffer.
-void copyToBuffer(char*& buffer, const void* data, size_t count);
+void copyToBuffer(char *&buffer, const void *data, size_t count);
 
 // convert data to datatype and copy it to device
-void convertAndCopyToDeivce(void*& deviceWeights, const nvinfer1::Weights &weights,
+void convertAndCopyToDeivce(void *&deviceWeights, const nvinfer1::Weights &weights,
                             nvinfer1::DataType datatype);
 
 // convert data to datatype and copy it to buffer
-void convertAndCopyToBuffer(char*& buffer, const nvinfer1::Weights weights,
+void convertAndCopyToBuffer(char *&buffer, const nvinfer1::Weights weights,
                             nvinfer1::DataType datatype);
 
 // deserialize buffer to device memory.
-void deserializeToDevice(const char*& hostBuffer, void*& deviceWeights, size_t size);
+void deserializeToDevice(const char *&hostBuffer, void *&deviceWeights, size_t size);
 
 #endif //PLUGIN_UTILS_H

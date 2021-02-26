@@ -7,31 +7,42 @@
  */
 #include "plugin_utils.h"
 
-size_t type2size(nvinfer1::DataType type) {
-    if(type == nvinfer1::DataType::kFLOAT) {
+size_t type2size(nvinfer1::DataType type)
+{
+    if (type == nvinfer1::DataType::kFLOAT)
+    {
         return 4;
-    } else if (type == nvinfer1::DataType::kHALF) {
+    }
+    else if (type == nvinfer1::DataType::kHALF)
+    {
         return 2;
-    } else if (type == nvinfer1::DataType::kINT8) {
+    }
+    else if (type == nvinfer1::DataType::kINT8)
+    {
         return 1;
-    } else {
+    }
+    else
+    {
         ASSERT(false);
     }
 }
 
-void* copyToDevice(const void* data, size_t count) {
+void *copyToDevice(const void *data, size_t count)
+{
     void *deviceData;
     CUDA_CHECK(cudaMalloc(&deviceData, count));
     CUDA_CHECK(cudaMemcpy(deviceData, data, count, cudaMemcpyHostToDevice));
     return deviceData;
 }
 
-void copyToBuffer(char*& buffer, const void* data, size_t count) {
+void copyToBuffer(char *&buffer, const void *data, size_t count)
+{
     memcpy(buffer, data, count);
 }
 
-void convertAndCopyToDeivce(void*& deviceWeights, const nvinfer1::Weights &weights,
-                            nvinfer1::DataType datatype) {
+void convertAndCopyToDeivce(void *&deviceWeights, const nvinfer1::Weights &weights,
+                            nvinfer1::DataType datatype)
+{
     size_t size = weights.count * type2size(datatype);
     if (weights.type != datatype) // Weights are converted in host memory first, if the type does not match
     {
@@ -49,17 +60,22 @@ void convertAndCopyToDeivce(void*& deviceWeights, const nvinfer1::Weights &weigh
         deviceWeights = copyToDevice(weights.values, size);
 }
 
-void convertAndCopyToBuffer(char*& buffer, const nvinfer1::Weights weights,
-                            nvinfer1::DataType datatype) {
+void convertAndCopyToBuffer(char *&buffer, const nvinfer1::Weights weights,
+                            nvinfer1::DataType datatype)
+{
     size_t size = weights.count * type2size(datatype);
-    if(weights.type != datatype) {
-        for (int64_t v = 0; v < weights.count; ++v) { 
-        if (datatype == nvinfer1::DataType::kFLOAT)
-            reinterpret_cast<float *>(buffer)[v] = __half2float(static_cast<const __half *>(weights.values)[v]);
-        else
-            reinterpret_cast<__half *>(buffer)[v] = __float2half(static_cast<const float *>(weights.values)[v]);
+    if (weights.type != datatype)
+    {
+        for (int64_t v = 0; v < weights.count; ++v)
+        {
+            if (datatype == nvinfer1::DataType::kFLOAT)
+                reinterpret_cast<float *>(buffer)[v] = __half2float(static_cast<const __half *>(weights.values)[v]);
+            else
+                reinterpret_cast<__half *>(buffer)[v] = __float2half(static_cast<const float *>(weights.values)[v]);
         }
-    } else {
+    }
+    else
+    {
         copyToBuffer(buffer, weights.values, size);
     }
     buffer += size;

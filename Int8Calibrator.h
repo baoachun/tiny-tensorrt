@@ -14,28 +14,30 @@
 #include "NvInfer.h"
 #include "utils.h"
 
-nvinfer1::IInt8Calibrator* GetInt8Calibrator(const std::string& calibratorType, 
+nvinfer1::IInt8Calibrator *GetInt8Calibrator(const std::string &calibratorType,
 											 int BatchSize,
-											 const std::vector<std::vector<float>>& data,
-											 const std::string& CalibDataName,
+											 const std::vector<std::vector<float>> &data,
+											 const std::string &CalibDataName,
 											 bool readCache);
 
-class Int8EntropyCalibrator2 : public nvinfer1::IInt8EntropyCalibrator2 {
+class Int8EntropyCalibrator2 : public nvinfer1::IInt8EntropyCalibrator2
+{
 public:
-	Int8EntropyCalibrator2(int BatchSize,const std::vector<std::vector<float>>& data,const std::string& CalibDataName = "",bool readCache = true);
+	Int8EntropyCalibrator2(int BatchSize, const std::vector<std::vector<float>> &data, const std::string &CalibDataName = "", bool readCache = true);
 
 	virtual ~Int8EntropyCalibrator2();
 
-	int getBatchSize() const override {
+	int getBatchSize() const override
+	{
 		std::cout << "getbatchSize: " << mBatchSize << std::endl;
-		return mBatchSize; 
+		return mBatchSize;
 	}
 
-	bool getBatch(void* bindings[], const char* names[], int nbBindings) override;
+	bool getBatch(void *bindings[], const char *names[], int nbBindings) override;
 
-	const void* readCalibrationCache(size_t& length) override;
+	const void *readCalibrationCache(size_t &length) override;
 
-	void writeCalibrationCache(const void* cache, size_t length) override;
+	void writeCalibrationCache(const void *cache, size_t length) override;
 
 private:
 	std::string mCalibDataName;
@@ -43,11 +45,11 @@ private:
 	int mBatchSize;
 
 	int mCurBatchIdx;
-	float* mCurBatchData{ nullptr };
-	
+	float *mCurBatchData{nullptr};
+
 	size_t mInputCount;
 	bool mReadCache;
-	void* mDeviceInput{ nullptr };
+	void *mDeviceInput{nullptr};
 
 	std::vector<char> mCalibrationCache;
 };

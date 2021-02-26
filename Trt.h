@@ -15,10 +15,9 @@
 
 #include "NvInfer.h"
 
-
-
-class TrtLogger : public nvinfer1::ILogger {
-    void log(Severity severity, const char* msg) override
+class TrtLogger : public nvinfer1::ILogger
+{
+    void log(Severity severity, const char *msg) override
     {
         // suppress info-level messages
         if (severity != Severity::kVERBOSE)
@@ -26,9 +25,10 @@ class TrtLogger : public nvinfer1::ILogger {
     }
 };
 
-struct TrtPluginParams {
+struct TrtPluginParams
+{
     // yolo-det layer
-    int yoloClassNum = 1; 
+    int yoloClassNum = 1;
     int yolo3NetSize = 416; // 416 or 608
 
     // upsample layer
@@ -37,7 +37,8 @@ struct TrtPluginParams {
 
 class PluginFactory;
 
-class Trt {
+class Trt
+{
 public:
     /**
      * @description: default constructor, will initialize plugin factory with default parameters.
@@ -64,13 +65,13 @@ public:
      * @mode: engine run mode, 0 for float32, 1 for float16, 2 for int8
      */
     void CreateEngine(
-        const std::string& prototxt, 
-        const std::string& caffeModel,
-        const std::string& engineFile,
-        const std::vector<std::string>& outputBlobName,
+        const std::string &prototxt,
+        const std::string &caffeModel,
+        const std::string &engineFile,
+        const std::vector<std::string> &outputBlobName,
         int maxBatchSize,
         int mode);
-    
+
     /**
      * @description: create engine from onnx model
      * @onnxModel: path to onnx model
@@ -80,9 +81,9 @@ public:
      * @return: 
      */
     void CreateEngine(
-        const std::string& onnxModel,
-        const std::string& engineFile,
-        const std::vector<std::string>& customOutput,
+        const std::string &onnxModel,
+        const std::string &engineFile,
+        const std::vector<std::string> &customOutput,
         int maxBatchSize,
         int mode);
 
@@ -97,11 +98,11 @@ public:
      * @return: 
      */
     void CreateEngine(
-        const std::string& uffModel,
-        const std::string& engineFile,
-        const std::vector<std::string>& inputTensorName,
-        const std::vector<std::vector<int>>& inputDims,
-        const std::vector<std::string>& outputTensorName,
+        const std::string &uffModel,
+        const std::string &engineFile,
+        const std::vector<std::string> &inputTensorName,
+        const std::vector<std::vector<int>> &inputDims,
+        const std::vector<std::string> &outputTensorName,
         int maxBatchSize,
         int mode);
 
@@ -115,27 +116,27 @@ public:
      * @description: async inference on engine context
      * @stream cuda stream for async inference and data transfer
      */
-    void ForwardAsync(const cudaStream_t& stream);
+    void ForwardAsync(const cudaStream_t &stream);
 
-    void SetBindingDimensions(std::vector<int>& inputDims, int bindIndex);
+    void SetBindingDimensions(std::vector<int> &inputDims, int bindIndex);
     /**
      * @description: data transfer between host and device, for example befor Forward, you need
      *               copy input data from host to device, and after Forward, you need to transfer
      *               output result from device to host.
      * @bindIndex binding data index, you can see this in CreateEngine log output.
      */
-    void CopyFromHostToDevice(const std::vector<float>& input, int bindIndex);
+    void CopyFromHostToDevice(const std::vector<float> &input, int bindIndex);
 
-    void CopyFromDeviceToHost(std::vector<float>& output, int bindIndex);
+    void CopyFromDeviceToHost(std::vector<float> &output, int bindIndex);
 
-    void CopyFromHostToDevice(const std::vector<float>& input, int bindIndex,const cudaStream_t& stream);
+    void CopyFromHostToDevice(const std::vector<float> &input, int bindIndex, const cudaStream_t &stream);
 
-    void CopyFromDeviceToHost(std::vector<float>& output, int bindIndex,const cudaStream_t& stream);
-    
+    void CopyFromDeviceToHost(std::vector<float> &output, int bindIndex, const cudaStream_t &stream);
+
     void SetDevice(int device);
 
     int GetDevice() const;
-     
+
     /**
      * @description: setting a int8 calibrator.To run INT8 calibration for a network with dynamic shapes, calibration optimization profile must be set. Calibration is performed using kOPT values of the profile. Calibration input data size must match this profile.
      * @calibratorData: use for int8 mode, calabrator data is a batch of sample input, 
@@ -147,7 +148,7 @@ public:
      *                  EntropyCalibrator:This is the legacy entropy calibrator.This is less complicated than a legacy calibrator and produces better results. Calibration happens after Layer fusion by default. See kCALIBRATION_BEFORE_FUSION for enabling calibration before fusion.
      *                  LegacyCalibrator:This calibrator is for compatibility with TensorRT 2.0 EA. This calibrator requires user parameterization, and is provided as a fallback option if the other calibrators yield poor results. Calibration happens after Layer fusion by default. See kCALIBRATION_BEFORE_FUSION for enabling calibration before fusion. Users can customize this calibrator to implement percentile max, like 99.99% percentile max is proved to have best accuracy for BERT. For more information, refer to the Integer Quantization for Deep Learning Inference: Principles and Empirical Evaluation paper.
      */
-    void SetInt8Calibrator(const std::string& calibratorType, const std::vector<std::vector<float>>& calibratorData);
+    void SetInt8Calibrator(const std::string &calibratorType, const std::vector<std::vector<float>> &calibratorData);
 
     /**
      * @description: async data tranfer between host and device, see above.
@@ -155,10 +156,10 @@ public:
      * @return: 
      */
     void AddDynamicShapeProfile(int batchSize,
-                                const std::string& inputName,
-                                const std::vector<int>& minDimVec,
-                                const std::vector<int>& optDimVec,
-                                const std::vector<int>& maxDimVec);
+                                const std::string &inputName,
+                                const std::vector<int> &minDimVec,
+                                const std::vector<int> &optDimVec,
+                                const std::vector<int> &maxDimVec);
 
     /**
      * @description: get max batch size of build engine.
@@ -172,7 +173,7 @@ public:
      *               use this function to avoid extra data io
      * @return: pointer point to device memory.
      */
-    void* GetBindingPtr(int bindIndex) const;
+    void *GetBindingPtr(int bindIndex) const;
 
     /**
      * @description: get binding data size in byte, so maybe you need to divide it by sizeof(T) where T is data type
@@ -196,26 +197,25 @@ public:
     std::vector<std::string> mBindingName;
 
 protected:
-
-    bool DeserializeEngine(const std::string& engineFile);
+    bool DeserializeEngine(const std::string &engineFile);
 
     void BuildEngine();
 
-    bool BuildEngineWithCaffe(const std::string& prototxt, 
-                    const std::string& caffeModel,
-                    const std::string& engineFile,
-                    const std::vector<std::string>& outputBlobName);
+    bool BuildEngineWithCaffe(const std::string &prototxt,
+                              const std::string &caffeModel,
+                              const std::string &engineFile,
+                              const std::vector<std::string> &outputBlobName);
 
-    bool BuildEngineWithOnnx(const std::string& onnxModel,
-                     const std::string& engineFile,
-                     const std::vector<std::string>& customOutput);
-    
-    bool BuildEngineWithUff(const std::string& uffModel,
-                      const std::string& engineFile,
-                      const std::vector<std::string>& inputTensorName,
-                      const std::vector<std::vector<int>>& inputDims,
-                      const std::vector<std::string>& outputTensorName);
-                     
+    bool BuildEngineWithOnnx(const std::string &onnxModel,
+                             const std::string &engineFile,
+                             const std::vector<std::string> &customOutput);
+
+    bool BuildEngineWithUff(const std::string &uffModel,
+                            const std::string &engineFile,
+                            const std::vector<std::string> &inputTensorName,
+                            const std::vector<std::vector<int>> &inputDims,
+                            const std::vector<std::string> &outputTensorName);
+
     /**
      * description: Init resource such as device memory
      */
@@ -224,7 +224,7 @@ protected:
     /**
      * description: save engine to engine file
      */
-    void SaveEngine(const std::string& fileName);
+    void SaveEngine(const std::string &fileName);
 
 protected:
     TrtLogger mLogger;
@@ -237,21 +237,21 @@ protected:
 
     nvinfer1::NetworkDefinitionCreationFlags mFlags = 0;
 
-    nvinfer1::IBuilderConfig* mConfig = nullptr;
+    nvinfer1::IBuilderConfig *mConfig = nullptr;
 
-    nvinfer1::IBuilder* mBuilder = nullptr;
+    nvinfer1::IBuilder *mBuilder = nullptr;
 
-    nvinfer1::INetworkDefinition* mNetwork = nullptr;
+    nvinfer1::INetworkDefinition *mNetwork = nullptr;
 
-    nvinfer1::ICudaEngine* mEngine = nullptr;
+    nvinfer1::ICudaEngine *mEngine = nullptr;
 
-    nvinfer1::IExecutionContext* mContext = nullptr;
+    nvinfer1::IExecutionContext *mContext = nullptr;
 
-    PluginFactory* mPluginFactory;
+    PluginFactory *mPluginFactory;
 
-    nvinfer1::IRuntime* mRuntime = nullptr;
+    nvinfer1::IRuntime *mRuntime = nullptr;
 
-    std::vector<void*> mBinding;
+    std::vector<void *> mBinding;
 
     std::vector<size_t> mBindingSize;
 
