@@ -57,9 +57,12 @@ cmake_minimum_required(VERSION 3.0)
 project(tinytrt)
 set(CMAKE_CXX_FLAGS "-std=c++11")
 
-# set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib CACHE PATH "")
-option(BUILD_PYTHON "compile python api" ON)
+# You must configure TENSORRT_INCLUDE_DIR
+option(TENSORRT_INCLUDE_DIR "tensorrt include path" "")
+option(BUILD_PYTHON "compile python api" OFF)
 option(BUILD_TEST "compile test" OFF)
+option(ENABLE_PRELU_FP16 "" OFF)
+message(STATUS ${TENSORRT_INCLUDE_DIR})
 
 find_package(CUDA REQUIRED)
 
@@ -88,7 +91,6 @@ endif()
 # Add ptx & bin flags for cuda
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} ${CUDA_gencode_flags}")
 
-option(ENABLE_PRELU_FP16 "" OFF)
 if(ENABLE_PRELU_FP16)
   add_definitions(-DFP16_PRELU)
 endif()
@@ -97,12 +99,7 @@ include_directories(spdlog)
 include_directories(pybind11/include)
 include_directories(./)
 include_directories(./plugin)
-
-# TensorRT
-find_path(TENSORRT_INCLUDE_DIR NvInfer.h
-  HINTS ${TENSORRT_ROOT} ${CUDA_TOOLKIT_ROOT_DIR}
-  PATH_SUFFIXES include)
-MESSAGE(STATUS "Found TensorRT headers at ${TENSORRT_INCLUDE_DIR}")
+include_directories(${TENSORRT_INCLUDE_DIR})
 
 message(STATUS "
 Generated gencode flags: ${CUDA_gencode_flags} 
